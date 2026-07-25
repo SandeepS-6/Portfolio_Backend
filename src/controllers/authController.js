@@ -106,7 +106,7 @@ async function finishOAuth(provider, req, res) {
       requestMeta(req),
     );
     setRefreshCookie(res, result.refreshToken);
-    return res.redirect(oauthService.oauthSuccessRedirect());
+    return res.redirect(oauthService.oauthSuccessRedirect(result.accessToken));
   } catch (error) {
     const message =
       error?.status && error?.message

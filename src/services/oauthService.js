@@ -229,7 +229,7 @@ async function resolveCmsUser(identity) {
   if (!user || !user.isActive) {
     throw httpError(
       403,
-      "No CMS account for this email. Ask an admin to invite you.",
+      `No CMS account for ${identity.email || "this email"}. Use the same email as ADMIN_EMAIL, or sign in with password first.`,
     );
   }
 
@@ -259,8 +259,11 @@ export async function completeOAuth({ provider, code, state }, meta = {}) {
   return issueSession(user, meta);
 }
 
-export function oauthSuccessRedirect() {
-  return `${cmsBase()}/oauth/callback`;
+// Pass access token in the hash so CMS can finish login without cross-site cookies
+// (*.onrender.com are separate sites — refresh cookies often get blocked).
+export function oauthSuccessRedirect(accessToken) {
+  const hash = new URLSearchParams({ access_token: accessToken }).toString();
+  return `${cmsBase()}/oauth/callback#${hash}`;
 }
 
 export function oauthErrorRedirect(message) {
