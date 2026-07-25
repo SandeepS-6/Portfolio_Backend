@@ -12,10 +12,10 @@ const options = {
         "REST API for the public portfolio and CMS. CMS mutations require JWT Bearer access tokens. Refresh tokens are HttpOnly cookies under /api/auth.",
     },
     servers: [
-      { url: env.apiPublicUrl, description: "Local" },
-      ...(env.isProd && process.env.RENDER_EXTERNAL_URL
-        ? [{ url: process.env.RENDER_EXTERNAL_URL, description: "Render" }]
-        : []),
+      {
+        url: env.apiPublicUrl,
+        description: env.isProd ? "Production" : "Local",
+      },
     ],
     tags: [
       { name: "Health" },
