@@ -1,0 +1,412 @@
+// Portfolio database schema (PostgreSQL + Prisma)
+//
+// Design notes:
+// - Every model has id + createdAt + updatedAt
+// - Hero / ContactInfo / SiteSettings are "singleton-style"
+//   (usually one row; CMS edits that row)
+// - Skills/Projects/etc. are lists the CMS can CRUD
+// - Floats for motion fields match the frontend skill badges
+// - Json used only where flexible structure helps (position, links)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Hero — identity + pitch (maps to frontend mockHero)
+// ---------------------------------------------------------------------------
+model Hero {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  role        String
+  quote       String?
+  dateOfBirth String?
+  dateLabel   String?  @default("Present")
+  greeting    String?
+  headline    String?
+  bio         String?  @db.Text
+  ctaLabel    String?  @default("View My Work")
+  ctaHref     String?  @default("#work")
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Skills — floating badges (maps to frontend mockSkills)
+// ---------------------------------------------------------------------------
+model Skill {
+  id                String   @id @default(cuid())
+  title             String
+  icon              String?
+  color             String?
+  category          String?
+  description       String?  @db.Text
+  displayOrder      Int      @default(0)
+  isVisible         Boolean  @default(true)
+  // Spawn position (% of hero). Drift starts from here.
+  positionX         Float    @default(50)
+  positionY         Float    @default(50)
+  // Visual depth
+  scale             Float    @default(1)
+  blur              Float    @default(1.2)
+  opacity           Float    @default(0.7)
+  zIndex            Int      @default(1)
+  // Motion (CMS-tunable)
+  speed             Float    @default(0.45)
+  direction         Float? // degrees; null = client can randomize
+  driftStrength     Float    @default(0.6)
+  rotationSpeed     Float    @default(0)
+  animationSpeed    Float    @default(0.12)
+  repulsionStrength Float    @default(1)
+  collisionRadius   Float    @default(48)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([isVisible, displayOrder])
+  @@index([category])
+}
+
+// ---------------------------------------------------------------------------
+// Projects section — singleton copy (labels, intro, kinds, bottom, lab)
+// ---------------------------------------------------------------------------
+model ProjectsSection {
+  id             String   @id @default(cuid())
+  squircle       Json?
+  labels         Json?
+  intro          Json?
+  bottom         Json?
+  kinds          Json?
+  hiddenProjects Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Projects — case studies (slug is the public /projects/:id key)
+// ---------------------------------------------------------------------------
+model Project {
+  id              String           @id @default(cuid())
+  title           String
+  slug            String           @unique
+  summary         String?
+  description     String?          @db.Text
+  coverImage      String?
+  coverAlt        String?
+  liveUrl         String?
+  repoUrl         String?
+  caseStudyUrl    String?
+  docsUrl         String?
+  techStack       String[]         @default([])
+  features        String[]         @default([])
+  category        String?
+  kinds           String[]         @default([])
+  role            String?
+  duration        String?
+  fromLabel       String?
+  toLabel         String?
+  progress        Int?
+  sortDate        String?
+  displayOrder    Int              @default(0)
+  isFeatured      Boolean          @default(false)
+  isVisible       Boolean          @default(true)
+  projectStatus   String?
+  platform        String?
+  clientType      String?
+  gallery         Json?
+  showcase        Json?
+  timeline        Json?
+  techDetails     Json?
+  caseStudy       Json?
+  metrics         Json?
+  relatedSlugs    String[]         @default([])
+  views           Int              @default(0)
+  likesCount      Int              @default(0)
+  bookmarksCount  Int              @default(0)
+  readingTime     String?
+  publishedLabel  String?
+  updatedLabel    String?
+  seoTitle        String?
+  seoDescription  String?          @db.Text
+  startedAt       DateTime?
+  endedAt         DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  comments        ProjectComment[]
+
+  @@index([isVisible, displayOrder])
+  @@index([isFeatured])
+}
+
+model ProjectComment {
+  id        String           @id @default(cuid())
+  projectId String
+  project   Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    ProjectComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   ProjectComment[] @relation("CommentReplies")
+  name      String
+  avatar    String?
+  body      String           @db.Text
+  likes     Int              @default(0)
+  isVisible Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([projectId, createdAt])
+  @@index([parentId])
+}
+
+// ---------------------------------------------------------------------------
+// Experience — work history
+// ---------------------------------------------------------------------------
+model Experience {
+  id           String    @id @default(cuid())
+  company      String
+  role         String
+  location     String?
+  description  String?   @db.Text
+  achievements String[]  @default([])
+  startDate    DateTime
+  endDate      DateTime?
+  isCurrent    Boolean   @default(false)
+  displayOrder Int       @default(0)
+  isVisible    Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isVisible, displayOrder])
+}
+
+// ---------------------------------------------------------------------------
+// Education
+// ---------------------------------------------------------------------------
+model Education {
+  id           String    @id @default(cuid())
+  school       String
+  degree       String?
+  field        String?
+  location     String?
+  description  String?   @db.Text
+  startDate    DateTime?
+  endDate      DateTime?
+  displayOrder Int       @default(0)
+  isVisible    Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isVisible, displayOrder])
+}
+
+// ---------------------------------------------------------------------------
+// Certificates
+// ---------------------------------------------------------------------------
+model Certificate {
+  id            String    @id @default(cuid())
+  title         String
+  issuer        String?
+  credentialUrl String?
+  imageUrl      String?
+  issuedAt      DateTime?
+  expiresAt     DateTime?
+  displayOrder  Int       @default(0)
+  isVisible     Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([isVisible, displayOrder])
+}
+
+// ---------------------------------------------------------------------------
+// Social links
+// ---------------------------------------------------------------------------
+model SocialLink {
+  id           String   @id @default(cuid())
+  platform     String // github, linkedin, twitter, …
+  label        String?
+  url          String
+  icon         String?
+  displayOrder Int      @default(0)
+  isVisible    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isVisible, displayOrder])
+}
+
+// ---------------------------------------------------------------------------
+// Contact info — reachability + footer / contact-ending copy (singleton-style)
+// ---------------------------------------------------------------------------
+model ContactInfo {
+  id              String   @id @default(cuid())
+  email           String?
+  phone           String?
+  location        String?
+  availability    String?
+  eyebrow         String?
+  ctaLabel        String?
+  ctaHref         String?
+  backgroundWords String[] @default([])
+  backToTopLabel  String?
+  credits         String?
+  developerName   String?
+  description     String?  @db.Text
+  copyright       String?
+  resumeUrl       String?
+  logoUrl         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Messages — contact form submissions
+// ---------------------------------------------------------------------------
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  body      String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isRead, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Meeting scheduler — Let's Talk booking (singleton settings + bookings)
+// ---------------------------------------------------------------------------
+model MeetingSettings {
+  id                String   @id @default(cuid())
+  hostName          String
+  hostInitials      String?
+  title             String   @default("30 min meeting")
+  durations         Int[]    @default([30, 60])
+  locationLabel     String   @default("Google Meet")
+  timezone          String   @default("Asia/Kolkata")
+  workDays          Int[]    @default([1, 2, 3, 4, 5])
+  dayStartMinutes   Int      @default(1020)
+  dayEndMinutes     Int      @default(1290)
+  slotIntervalMin   Int      @default(30)
+  bufferMinutes     Int      @default(0)
+  bookingWindowDays Int      @default(60)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model MeetingBooking {
+  id            String   @id @default(cuid())
+  guestName     String
+  guestEmail    String
+  subject       String?
+  notes         String?  @db.Text
+  startAt       DateTime
+  endAt         DateTime
+  durationMin   Int
+  timezone      String
+  locationLabel String?
+  status        String   @default("confirmed")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([startAt, endAt])
+  @@index([status, startAt])
+}
+
+// ---------------------------------------------------------------------------
+// Site settings — global config (singleton-style)
+// ---------------------------------------------------------------------------
+model SiteSettings {
+  id              String   @id @default(cuid())
+  siteTitle       String?
+  siteDescription String?  @db.Text
+  logoText        String?
+  primaryColor    String?
+  seoKeywords     String[] @default([])
+  maintenanceMode Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Auth — CMS admin users + rotating refresh sessions
+// ---------------------------------------------------------------------------
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+model User {
+  id           String              @id @default(cuid())
+  email        String              @unique
+  passwordHash String?
+  googleId     String?             @unique
+  githubId     String?             @unique
+  role         Role                @default(ADMIN)
+  isActive     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  sessions     RefreshSession[]
+  resetTokens  PasswordResetToken[]
+
+  @@index([role, isActive])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model RefreshSession {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  familyId   String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  replacedBy String?
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
+}
+
+// ---------------------------------------------------------------------------
+// Cookie consent — optional persistence from the public portfolio
+// ---------------------------------------------------------------------------
+model CookieConsent {
+  id         String   @id @default(cuid())
+  visitorId  String?
+  choice     String
+  categories Json?
+  version    Int      @default(1)
+  expiresAt  DateTime?
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([choice, createdAt])
+  @@index([visitorId])
+}
