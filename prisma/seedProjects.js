@@ -167,61 +167,7 @@ export const projectsSectionSeed = {
     attribution: "",
   },
   bottom: {
-    grid: [
-      {
-        id: "hobbies",
-        type: "hobbies",
-        title: "Hobbies",
-        items: [
-          {
-            id: "hob-cricket",
-            title: "Playing cricket",
-            detail: "Weekend matches, net practice, and the joy of a clean cover drive.",
-          },
-          {
-            id: "hob-bgmi",
-            title: "Playing BGMI",
-            detail: "Squad drops, clutch moments, and late-night ranked grinds with friends.",
-          },
-          {
-            id: "hob-books",
-            title: "Reading books",
-            detail: "Fiction, product thinking, and anything that sharpens how I see the world.",
-          },
-          {
-            id: "hob-music",
-            title: "Music & focus playlists",
-            detail: "Beats for deep work, and quieter tracks when I need to reset.",
-          },
-          {
-            id: "hob-walks",
-            title: "Long walks",
-            detail: "Stepping away from the screen to come back with clearer ideas.",
-          },
-        ],
-      },
-      {
-        id: "responsive",
-        type: "service",
-        title: "Responsive design",
-        detail:
-          "Layouts that feel intentional on every screen — phone, tablet, and desktop.",
-      },
-      {
-        id: "svc-frontend",
-        type: "service",
-        title: "Frontend development",
-        detail:
-          "Responsive React interfaces with clear hierarchy and production polish.",
-      },
-      {
-        id: "svc-fullstack",
-        type: "service",
-        title: "Full-stack web apps",
-        detail:
-          "End-to-end features with Node.js, Express, and solid API contracts.",
-      },
-    ],
+    grid: [],
   },
   kinds: [
     { id: "all", label: "All Projects" },

@@ -23,6 +23,7 @@ function mapSection(row) {
     favourites: asObject(row.favourites, skillsSectionSeed.favourites),
     learning: asObject(row.learning, skillsSectionSeed.learning),
     marquee: asObject(row.marquee, skillsSectionSeed.marquee),
+    summary: asObject(row.summary, skillsSectionSeed.summary),
   };
 }
 
@@ -50,7 +51,15 @@ export async function updateSkillsSection(body = {}) {
   if (body.lead !== undefined) data.lead = body.lead;
   if (body.isPublished !== undefined) data.isPublished = Boolean(body.isPublished);
 
-  for (const key of ["stats", "categories", "expertise", "favourites", "learning", "marquee"]) {
+  for (const key of [
+    "stats",
+    "categories",
+    "expertise",
+    "favourites",
+    "learning",
+    "marquee",
+    "summary",
+  ]) {
     if (body[key] === undefined) continue;
     if (key === "stats" || key === "categories") {
       if (!Array.isArray(body[key])) {

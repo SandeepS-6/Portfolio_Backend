@@ -87,6 +87,7 @@ model SkillsSection {
   favourites  Json?
   learning    Json?
   marquee     Json?
+  summary     Json?
   isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
