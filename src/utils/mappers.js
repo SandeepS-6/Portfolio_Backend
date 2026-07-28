@@ -164,7 +164,7 @@ export function mapProjectToFrontend(project, { comments } = {}) {
     description: project.description || project.summary || "",
     shortDescription: project.summary || project.description || "",
     image,
-    techStack: project.techStack || [],
+    techStack: mergeTechStack(project.techStack, project.techDetails),
     features: project.features || [],
     category: project.category || "",
     kinds: project.kinds || [],
@@ -295,6 +295,28 @@ export function mapProjectFromBody(body = {}) {
   }
 
   return data;
+}
+
+/** Prefer techDetails icon/color when present; keep plain strings otherwise. */
+function mergeTechStack(names = [], details = []) {
+  const byName = new Map(
+    (Array.isArray(details) ? details : [])
+      .filter((entry) => entry && entry.name)
+      .map((entry) => [String(entry.name).toLowerCase(), entry]),
+  );
+
+  return (Array.isArray(names) ? names : []).map((name) => {
+    const detail = byName.get(String(name).toLowerCase());
+    if (!detail || (!detail.icon && !detail.color && !detail.category)) {
+      return name;
+    }
+    return {
+      name,
+      ...(detail.icon ? { icon: detail.icon } : {}),
+      ...(detail.color ? { color: detail.color } : {}),
+      ...(detail.category ? { category: detail.category } : {}),
+    };
+  });
 }
 
 export function mapCommentToFrontend(row) {

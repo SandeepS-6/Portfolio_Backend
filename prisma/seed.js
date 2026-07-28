@@ -102,14 +102,16 @@ async function main() {
       firstName: "Sandeep",
       lastName: "Saliganti",
       role: "Frontend Engineer",
-      quote: "I build interfaces people enjoy — on foundations that last.",
+      quote:
+        "Every great product begins with curiosity. Every interaction begins with intention.",
       dateOfBirth: "01.10.1998",
       dateLabel: "Present",
-      greeting: "Hello, visitor!",
-      headline: "Let the craft unfold.",
-      bio: "A React developer focused on fast, clear, and thoughtful digital experiences — with clean architecture and just enough delight.",
-      ctaLabel: "View My Work",
-      ctaHref: "#projects",
+      greeting: "Hey I am Sandeep",
+      headline:
+        "Building **experiences** people remember. Engineering **products** teams trust.",
+      bio: "Every section you discover represents a challenge I solved, a technology I mastered, or a lesson that shaped how I build for the web.",
+      ctaLabel: "Know me better",
+      ctaHref: "#about",
     },
   });
 
@@ -145,15 +147,15 @@ async function main() {
   await prisma.socialLink.createMany({
     data: [
       {
-        platform: "instagram",
-        label: "Instagram",
-        url: "https://instagram.com",
-        displayOrder: 1,
-      },
-      {
         platform: "linkedin",
         label: "LinkedIn",
         url: "https://linkedin.com",
+        displayOrder: 1,
+      },
+      {
+        platform: "instagram",
+        label: "Instagram",
+        url: "https://instagram.com",
         displayOrder: 2,
       },
     ],

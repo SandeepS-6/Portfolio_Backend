@@ -18,7 +18,7 @@ datasource db {
 }
 
 // ---------------------------------------------------------------------------
-// Hero — identity + pitch (maps to frontend mockHero)
+// Hero — identity + pitch (CMS-edited singleton)
 // ---------------------------------------------------------------------------
 model Hero {
   id          String   @id @default(cuid())
