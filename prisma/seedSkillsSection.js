@@ -1,0 +1,147 @@
+/* Default Skills section content (Technologies I Work With). */
+
+export const skillsSectionSeed = {
+  eyebrow: null,
+  headline: "Technologies I Work With",
+  lead: "A curated set of technologies and tools that I use to build performant, scalable and delightful digital experiences.",
+  isPublished: true,
+  stats: [
+    { id: "years", value: "3+", label: "Years of Experience", icon: "code" },
+    { id: "projects", value: "20+", label: "Projects Completed", icon: "rocket" },
+    { id: "tech", value: "15+", label: "Technologies", icon: "star" },
+  ],
+  categories: [
+    {
+      id: "frontend",
+      title: "Frontend",
+      detail: "Building responsive and interactive user interfaces.",
+      icon: "frontend",
+      tone: "sky",
+      techs: [
+        { name: "React", icon: "react", color: "61DAFB" },
+        { name: "Next.js", icon: "nextdotjs", color: "2a2a32" },
+        { name: "TypeScript", icon: "typescript", color: "3178C6" },
+        { name: "Tailwind CSS", icon: "tailwindcss", color: "06B6D4" },
+      ],
+    },
+    {
+      id: "backend",
+      title: "Backend",
+      detail: "Creating robust APIs and server side applications.",
+      icon: "backend",
+      tone: "green",
+      techs: [
+        { name: "Node.js", icon: "nodedotjs", color: "339933" },
+        { name: "Express.js", icon: "express", color: "2a2a32" },
+        { name: "MongoDB", icon: "mongodb", color: "47A248" },
+        { name: "PostgreSQL", icon: "postgresql", color: "4169E1" },
+      ],
+    },
+    {
+      id: "database",
+      title: "Database",
+      detail: "Storing and managing data efficiently and securely.",
+      icon: "database",
+      tone: "amber",
+      techs: [
+        { name: "MongoDB", icon: "mongodb", color: "47A248" },
+        { name: "PostgreSQL", icon: "postgresql", color: "4169E1" },
+        { name: "MySQL", icon: "mysql", color: "4479A1" },
+        { name: "Firebase", icon: "firebase", color: "FFCA28" },
+      ],
+    },
+    {
+      id: "devops",
+      title: "DevOps & Cloud",
+      detail: "Deploying, monitoring and scaling applications.",
+      icon: "cloud",
+      tone: "blue",
+      techs: [
+        {
+          name: "AWS",
+          icon: "amazonaws",
+          color: "FF9900",
+          src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg",
+        },
+        { name: "Vercel", icon: "vercel", color: "2a2a32" },
+        { name: "Docker", icon: "docker", color: "2496ED" },
+        { name: "Kubernetes", icon: "kubernetes", color: "326CE5" },
+      ],
+    },
+    {
+      id: "tools",
+      title: "Tools & Utilities",
+      detail: "Productivity boosters and development essentials.",
+      icon: "tools",
+      tone: "violet",
+      techs: [
+        { name: "Git", icon: "git", color: "F05032" },
+        {
+          name: "VS Code",
+          icon: "vscode",
+          color: "007ACC",
+          src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg",
+        },
+        { name: "Figma", icon: "figma", color: "F24E1E" },
+        { name: "Postman", icon: "postman", color: "FF6C37" },
+      ],
+    },
+    {
+      id: "others",
+      title: "Others",
+      detail:
+        "Extra languages, styling tools, and state libraries that round out every build.",
+      icon: "sparkles",
+      tone: "rose",
+      techs: [
+        { name: "HTML5", icon: "html5", color: "E34F26" },
+        { name: "CSS3", icon: "css", color: "1572B6" },
+        { name: "Sass", icon: "sass", color: "CC6699" },
+        { name: "Redux", icon: "redux", color: "764ABC" },
+      ],
+    },
+  ],
+  expertise: {
+    title: "My Expertise",
+    overall: 90,
+    overallLabel: "Overall Proficiency",
+    bars: [
+      { id: "fe", label: "Frontend Development", value: 95, stars: 5 },
+      { id: "be", label: "Backend Development", value: 90, stars: 4.5 },
+      { id: "db", label: "Database Management", value: 85, stars: 4 },
+      { id: "ops", label: "DevOps & Cloud", value: 80, stars: 4 },
+      { id: "tools", label: "Tools & Others", value: 85, stars: 4 },
+    ],
+  },
+  favourites: {
+    title: "Favourite Tech",
+    note: "The technologies I enjoy working with the most.",
+    techs: [
+      { name: "React", icon: "react", color: "61DAFB" },
+      { name: "Next.js", icon: "nextdotjs", color: "2a2a32" },
+      { name: "TypeScript", icon: "typescript", color: "3178C6" },
+      { name: "Node.js", icon: "nodedotjs", color: "339933" },
+    ],
+  },
+  learning: {
+    title: "Currently Learning",
+    name: "Next.js 15",
+    detail: "Exploring new features and building modern apps.",
+    percent: 70,
+    tech: { name: "Next.js", icon: "nextdotjs", color: "2a2a32" },
+  },
+  marquee: {
+    title: "Technologies I've Worked With",
+    moreLabel: "and more",
+    techs: [
+      { name: "React", icon: "react", color: "61DAFB" },
+      { name: "Next.js", icon: "nextdotjs", color: "2a2a32" },
+      { name: "TypeScript", icon: "typescript", color: "3178C6" },
+      { name: "Node.js", icon: "nodedotjs", color: "339933" },
+      { name: "Tailwind CSS", icon: "tailwindcss", color: "06B6D4" },
+      { name: "MongoDB", icon: "mongodb", color: "47A248" },
+      { name: "Express.js", icon: "express", color: "2a2a32" },
+      { name: "PostgreSQL", icon: "postgresql", color: "4169E1" },
+    ],
+  },
+};

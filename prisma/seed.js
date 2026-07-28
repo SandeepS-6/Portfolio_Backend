@@ -5,6 +5,8 @@ import {
   projectsSectionSeed,
   projectsSeed,
 } from "./seedProjects.js";
+import { whatIDoSeed } from "./seedWhatIDo.js";
+import { skillsSectionSeed } from "./seedSkillsSection.js";
 
 const prisma = new PrismaClient();
 
@@ -91,6 +93,8 @@ async function main() {
 
   await prisma.skill.deleteMany();
   await prisma.hero.deleteMany();
+  await prisma.whatIDoSection.deleteMany();
+  await prisma.skillsSection.deleteMany();
   await prisma.siteSettings.deleteMany();
   await prisma.contactInfo.deleteMany();
   await prisma.socialLink.deleteMany();
@@ -117,12 +121,23 @@ async function main() {
 
   await prisma.skill.createMany({ data: skills });
 
+  await prisma.whatIDoSection.create({ data: whatIDoSeed });
+  await prisma.skillsSection.create({ data: skillsSectionSeed });
+
   await prisma.siteSettings.create({
     data: {
       siteTitle: "Sandeep Saliganti",
       siteDescription: "Frontend Engineer portfolio",
       logoText: "S.",
       primaryColor: "#f17a32",
+      isActive: true,
+      maintenanceMode: false,
+      showHero: true,
+      showAbout: true,
+      showWhatIDo: true,
+      showSkills: true,
+      showProjects: true,
+      showContact: true,
     },
   });
 

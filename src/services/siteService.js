@@ -98,37 +98,92 @@ const settingsFields = [
   "logoText",
   "primaryColor",
   "seoKeywords",
+  "isActive",
   "maintenanceMode",
+  "showHero",
+  "showAbout",
+  "showWhatIDo",
+  "showSkills",
+  "showProjects",
+  "showContact",
 ];
+
+const defaultSettings = {
+  siteTitle: "Sandeep Saliganti",
+  siteDescription: "Frontend Engineer portfolio",
+  logoText: "S.",
+  primaryColor: "#f17a32",
+  isActive: true,
+  maintenanceMode: false,
+  showHero: true,
+  showAbout: true,
+  showWhatIDo: true,
+  showSkills: true,
+  showProjects: true,
+  showContact: true,
+};
+
+function mapSettings(row) {
+  return {
+    id: row.id,
+    siteTitle: row.siteTitle || "",
+    siteDescription: row.siteDescription || "",
+    logoText: row.logoText || "",
+    primaryColor: row.primaryColor || "#f17a32",
+    seoKeywords: Array.isArray(row.seoKeywords) ? row.seoKeywords : [],
+    isActive: row.isActive !== false,
+    maintenanceMode: Boolean(row.maintenanceMode),
+    showHero: row.showHero !== false,
+    showAbout: row.showAbout !== false,
+    showWhatIDo: row.showWhatIDo !== false,
+    showSkills: row.showSkills !== false,
+    showProjects: row.showProjects !== false,
+    showContact: row.showContact !== false,
+    updatedAt: row.updatedAt,
+  };
+}
 
 export async function getSiteSettings() {
   let row = await prisma.siteSettings.findFirst({ orderBy: { createdAt: "asc" } });
   if (!row) {
-    row = await prisma.siteSettings.create({
-      data: {
-        siteTitle: "Sandeep Saliganti",
-        siteDescription: "Frontend Engineer portfolio",
-        logoText: "S.",
-        primaryColor: "#f17a32",
-      },
-    });
+    row = await prisma.siteSettings.create({ data: defaultSettings });
   }
-  return row;
+  return mapSettings(row);
 }
 
 export async function updateSiteSettings(body = {}) {
   const data = {};
   for (const key of settingsFields) {
-    if (body[key] !== undefined) data[key] = body[key];
+    if (body[key] === undefined) continue;
+    if (key === "seoKeywords") {
+      if (Array.isArray(body.seoKeywords)) {
+        data.seoKeywords = body.seoKeywords.map(String).map((s) => s.trim()).filter(Boolean);
+      } else if (typeof body.seoKeywords === "string") {
+        data.seoKeywords = body.seoKeywords
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+      continue;
+    }
+    if (
+      key === "isActive" ||
+      key === "maintenanceMode" ||
+      key.startsWith("show")
+    ) {
+      data[key] = Boolean(body[key]);
+      continue;
+    }
+    data[key] = body[key];
   }
 
   let row = await prisma.siteSettings.findFirst({ orderBy: { createdAt: "asc" } });
   if (!row) {
-    row = await prisma.siteSettings.create({ data });
+    row = await prisma.siteSettings.create({ data: { ...defaultSettings, ...data } });
   } else {
     row = await prisma.siteSettings.update({ where: { id: row.id }, data });
   }
-  return row;
+  return mapSettings(row);
 }
 
 export async function listMessages() {

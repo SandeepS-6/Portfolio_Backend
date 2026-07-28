@@ -74,6 +74,25 @@ model Skill {
 }
 
 // ---------------------------------------------------------------------------
+// Skills section — Technologies I Work With (singleton + JSON blocks)
+// ---------------------------------------------------------------------------
+model SkillsSection {
+  id          String   @id @default(cuid())
+  eyebrow     String?
+  headline    String?
+  lead        String?  @db.Text
+  stats       Json?
+  categories  Json?
+  expertise   Json?
+  favourites  Json?
+  learning    Json?
+  marquee     Json?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
 // Projects section — singleton copy (labels, intro, kinds, bottom, lab)
 // ---------------------------------------------------------------------------
 model ProjectsSection {
@@ -86,6 +105,21 @@ model ProjectsSection {
   hiddenProjects Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// What I Do — singleton section + capability cards (JSON items)
+// ---------------------------------------------------------------------------
+model WhatIDoSection {
+  id          String   @id @default(cuid())
+  title       String?
+  lead        String?  @db.Text
+  cinemaTitle String?
+  marqueeText String?
+  items       Json?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // ---------------------------------------------------------------------------
@@ -331,7 +365,14 @@ model SiteSettings {
   logoText        String?
   primaryColor    String?
   seoKeywords     String[] @default([])
+  isActive        Boolean  @default(true)
   maintenanceMode Boolean  @default(false)
+  showHero        Boolean  @default(true)
+  showAbout       Boolean  @default(true)
+  showWhatIDo     Boolean  @default(true)
+  showSkills      Boolean  @default(true)
+  showProjects    Boolean  @default(true)
+  showContact     Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

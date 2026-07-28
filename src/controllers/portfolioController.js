@@ -5,6 +5,8 @@ import * as content from "../services/contentService.js";
 import * as projects from "../services/projectsService.js";
 import * as site from "../services/siteService.js";
 import * as meeting from "../services/meetingService.js";
+import * as whatIDo from "../services/whatIDoService.js";
+import * as skillsSection from "../services/skillsSectionService.js";
 
 export const getHero = asyncHandler(async (_req, res) => {
   res.json(await heroService.getHero());
@@ -12,6 +14,22 @@ export const getHero = asyncHandler(async (_req, res) => {
 
 export const putHero = asyncHandler(async (req, res) => {
   res.json(await heroService.updateHero(req.body));
+});
+
+export const getWhatIDo = asyncHandler(async (_req, res) => {
+  res.json(await whatIDo.getWhatIDo());
+});
+
+export const putWhatIDo = asyncHandler(async (req, res) => {
+  res.json(await whatIDo.updateWhatIDo(req.body));
+});
+
+export const getSkillsSection = asyncHandler(async (_req, res) => {
+  res.json(await skillsSection.getSkillsSection());
+});
+
+export const putSkillsSection = asyncHandler(async (req, res) => {
+  res.json(await skillsSection.updateSkillsSection(req.body));
 });
 
 function visibleOnlyForRequest(req) {

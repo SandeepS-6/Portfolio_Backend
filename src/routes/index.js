@@ -17,6 +17,8 @@ router.post("/cookie-consent", cookieConsent.postCookieConsent);
 
 // Public portfolio reads (visibility enforced in controllers for anonymous)
 router.get("/hero", c.getHero);
+router.get("/what-i-do", c.getWhatIDo);
+router.get("/skills-section", c.getSkillsSection);
 router.get("/skills", optionalAuthenticate, c.getSkills);
 router.get("/skills/:id", c.getSkill);
 router.get("/projects", optionalAuthenticate, c.getProjects);
@@ -45,6 +47,8 @@ router.post("/meeting/bookings", c.postMeetingBooking);
 
 // Protected CMS mutations + private message inbox
 router.put("/hero", ...admin, c.putHero);
+router.put("/what-i-do", ...admin, c.putWhatIDo);
+router.put("/skills-section", ...admin, c.putSkillsSection);
 
 router.post("/skills", ...admin, c.postSkill);
 router.put("/skills/:id", ...admin, c.putSkill);
