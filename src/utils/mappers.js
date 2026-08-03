@@ -94,6 +94,46 @@ function asImage(value, fallbackAlt = "") {
   return null;
 }
 
+/** Cover + gallery → unique { src, alt }[] (cover first). */
+export function collectProjectImages(project, { max = 0 } = {}) {
+  if (!project) return [];
+
+  const name = project.title || project.name || "Project";
+  const cover =
+    asImage(project.coverImage, project.coverAlt || name) ||
+    asImage(project.image, name);
+
+  const raw = Array.isArray(project.gallery)
+    ? project.gallery
+    : Array.isArray(project.images)
+      ? project.images
+      : [];
+
+  const list = [];
+  const seen = new Set();
+
+  function push(img) {
+    if (!img?.src || seen.has(img.src)) return;
+    seen.add(img.src);
+    list.push(img);
+  }
+
+  push(cover);
+  raw.forEach((item, index) => {
+    push(asImage(item, `${name} image ${index + 1}`));
+  });
+
+  if (max > 0) return list.slice(0, max);
+  return list;
+}
+
+function normalizeImageList(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item, index) => asImage(item, `Image ${index + 1}`))
+    .filter(Boolean);
+}
+
 function mapComment(row) {
   return {
     id: row.id,
@@ -126,21 +166,52 @@ function formatCommentDate(value) {
   });
 }
 
-/** DB Project (+ optional comments) → shape the Projects UI already expects. */
+/** Lean card for the projects grid — no case study / comments / showcase. */
+export function mapProjectToCard(project) {
+  if (!project) return null;
+
+  const name = project.title;
+  const images = collectProjectImages(project, { max: 3 });
+  const image = images[0] || null;
+
+  return {
+    id: project.slug,
+    dbId: project.id,
+    name,
+    description: project.description || project.summary || "",
+    shortDescription: project.summary || project.description || "",
+    image,
+    images,
+    techStack: mergeTechStack(project.techStack, project.techDetails),
+    features: project.features || [],
+    category: project.category || "",
+    kinds: project.kinds || [],
+    role: project.role || "",
+    duration: project.duration || "",
+    from: project.fromLabel || "",
+    to: project.toLabel || "",
+    progress: project.progress ?? null,
+    sortDate: project.sortDate || "",
+    githubUrl: project.repoUrl || "",
+    liveUrl: project.liveUrl || "",
+    caseStudyUrl: project.caseStudyUrl || "",
+    docsUrl: project.docsUrl || "",
+    featured: Boolean(project.isFeatured),
+    projectStatus: project.projectStatus || "Shipped",
+    isVisible: project.isVisible,
+    displayOrder: project.displayOrder,
+    relatedIds: project.relatedSlugs || [],
+  };
+}
+
+/** Full project for detail page (+ optional comments). */
 export function mapProjectToFrontend(project, { comments } = {}) {
   if (!project) return null;
 
   const name = project.title;
-  const image =
-    asImage(project.coverImage, project.coverAlt || name) ||
-    asImage({ src: project.coverImage, alt: project.coverAlt }, name);
-
-  const galleryRaw = Array.isArray(project.gallery) ? project.gallery : [];
-  const gallery = galleryRaw
-    .map((item, index) => asImage(item, `${name} gallery ${index + 1}`))
-    .filter(Boolean);
-
-  if (image && gallery.length === 0) gallery.push(image);
+  const images = collectProjectImages(project);
+  const image = images[0] || null;
+  const gallery = images.length > 0 ? images : [];
 
   const showcaseRaw = project.showcase && typeof project.showcase === "object"
     ? project.showcase
@@ -164,6 +235,7 @@ export function mapProjectToFrontend(project, { comments } = {}) {
     description: project.description || project.summary || "",
     shortDescription: project.summary || project.description || "",
     image,
+    images,
     techStack: mergeTechStack(project.techStack, project.techDetails),
     features: project.features || [],
     category: project.category || "",
@@ -280,6 +352,26 @@ export function mapProjectFromBody(body = {}) {
     }
   }
 
+  // Card/gallery images: [{ src, alt }] — also accepted as `images`
+  if (body.images !== undefined && body.gallery === undefined) {
+    data.gallery = normalizeImageList(body.images);
+  }
+  if (data.gallery !== undefined) {
+    data.gallery = normalizeImageList(data.gallery);
+  }
+
+  // First gallery image fills cover when cover was not set
+  if (
+    Array.isArray(data.gallery) &&
+    data.gallery.length > 0 &&
+    data.coverImage === undefined &&
+    body.coverImage === undefined &&
+    !body.image
+  ) {
+    data.coverImage = data.gallery[0].src;
+    if (data.coverAlt === undefined) data.coverAlt = data.gallery[0].alt || "";
+  }
+
   if (body.meta) {
     if (body.meta.views !== undefined) data.views = body.meta.views;
     if (body.meta.likes !== undefined) data.likesCount = body.meta.likes;
@@ -327,7 +419,7 @@ export function mapCommentToFrontend(row) {
 export function mapFooterToFrontend(contact, socialLinks = []) {
   if (!contact) return null;
 
-  const email = contact.email || "hello@example.com";
+  const email = contact.email || "saligantisandeepzzz6@gmail.com";
   const words =
     contact.backgroundWords?.length > 0
       ? contact.backgroundWords

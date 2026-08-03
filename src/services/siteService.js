@@ -4,7 +4,7 @@ import { mapFooterToFrontend } from "../utils/mappers.js";
 import { httpError } from "../middlewares/errorHandler.js";
 
 const defaultContact = {
-  email: "hello@example.com",
+  email: "saligantisandeepzzz6@gmail.com",
   location: "Bengaluru",
   availability: "Open to work",
   eyebrow: "Have a project in mind?",

@@ -124,6 +124,38 @@ model WhatIDoSection {
 }
 
 // ---------------------------------------------------------------------------
+// About — singleton profile + timelines (JSON for lists)
+// ---------------------------------------------------------------------------
+model About {
+  id              String   @id @default(cuid())
+  eyebrow         String?
+  hello           String?
+  greeting        String?
+  name            String?
+  title           String?
+  location        String?
+  phone           String?
+  phoneHref       String?
+  status          String?
+  availability    String?
+  experienceYears String?
+  design          String?
+  resumeLabel     String?
+  resumeHref      String?
+  resumeFileName  String?
+  photoSrc        String?
+  photoAlt        String?
+  story           Json?
+  socials         Json?
+  interests       Json?
+  education       Json?
+  experience      Json?
+  isPublished     Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
 // Projects — case studies (slug is the public /projects/:id key)
 // ---------------------------------------------------------------------------
 model Project {
@@ -319,22 +351,28 @@ model Message {
 // Meeting scheduler — Let's Talk booking (singleton settings + bookings)
 // ---------------------------------------------------------------------------
 model MeetingSettings {
-  id                String   @id @default(cuid())
-  hostName          String
-  hostInitials      String?
-  title             String   @default("30 min meeting")
-  durations         Int[]    @default([30, 60])
-  locationLabel     String   @default("Google Meet")
-  timezone          String   @default("Asia/Kolkata")
-  workDays          Int[]    @default([1, 2, 3, 4, 5])
-  dayStartMinutes   Int      @default(1020)
-  dayEndMinutes     Int      @default(1290)
-  slotIntervalMin   Int      @default(30)
-  bufferMinutes     Int      @default(0)
-  bookingWindowDays Int      @default(60)
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  hostName           String
+  hostInitials       String?
+  hostImageUrl       String?
+  title              String   @default("30 min meeting")
+  durations          Int[]    @default([30, 60])
+  locationLabel      String   @default("Google Meet")
+  meetUrl            String?
+  timezone           String   @default("Asia/Kolkata")
+  workDays           Int[]    @default([1, 2, 3, 4, 5])
+  dayStartMinutes    Int      @default(540)
+  dayEndMinutes      Int      @default(1200)
+  slotIntervalMin    Int      @default(30)
+  bufferMinutes      Int      @default(0)
+  bookingWindowDays  Int      @default(60)
+  isActive           Boolean  @default(true)
+  guestEmailSubject  String?  @db.Text
+  guestEmailBody     String?  @db.Text
+  hostEmailSubject   String?  @db.Text
+  hostEmailBody      String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model MeetingBooking {
@@ -348,6 +386,7 @@ model MeetingBooking {
   durationMin   Int
   timezone      String
   locationLabel String?
+  meetUrl       String?
   status        String   @default("confirmed")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

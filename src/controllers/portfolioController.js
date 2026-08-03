@@ -7,6 +7,7 @@ import * as site from "../services/siteService.js";
 import * as meeting from "../services/meetingService.js";
 import * as whatIDo from "../services/whatIDoService.js";
 import * as skillsSection from "../services/skillsSectionService.js";
+import * as aboutService from "../services/aboutService.js";
 
 export const getHero = asyncHandler(async (_req, res) => {
   res.json(await heroService.getHero());
@@ -14,6 +15,14 @@ export const getHero = asyncHandler(async (_req, res) => {
 
 export const putHero = asyncHandler(async (req, res) => {
   res.json(await heroService.updateHero(req.body));
+});
+
+export const getAbout = asyncHandler(async (_req, res) => {
+  res.json(await aboutService.getAbout());
+});
+
+export const putAbout = asyncHandler(async (req, res) => {
+  res.json(await aboutService.updateAbout(req.body));
 });
 
 export const getWhatIDo = asyncHandler(async (_req, res) => {
@@ -77,8 +86,11 @@ export const putProjectsSection = asyncHandler(async (req, res) => {
 });
 
 export const getProject = asyncHandler(async (req, res) => {
-  const map = !req.user;
-  res.json(await projects.getProject(req.params.id, { map }));
+  if (req.user) {
+    res.json(await projects.getProject(req.params.id, { map: false }));
+    return;
+  }
+  res.json(await projects.getProjectDetailPayload(req.params.id));
 });
 
 export const postProject = asyncHandler(async (req, res) => {
@@ -233,6 +245,10 @@ export const postMeetingBooking = asyncHandler(async (req, res) => {
 
 export const getMeetingBookings = asyncHandler(async (_req, res) => {
   res.json(await meeting.listMeetingBookings());
+});
+
+export const getMeetingAnalytics = asyncHandler(async (_req, res) => {
+  res.json(await meeting.getMeetingAnalytics());
 });
 
 export const patchMeetingBooking = asyncHandler(async (req, res) => {

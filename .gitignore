@@ -30,3 +30,7 @@ Thumbs.db
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+
+# CMS uploads (served at /uploads)
+uploads/*
+!uploads/.gitkeep

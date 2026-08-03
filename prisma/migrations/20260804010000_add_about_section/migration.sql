@@ -1,0 +1,31 @@
+-- CreateTable About (singleton — content filled via CMS, not seed)
+CREATE TABLE IF NOT EXISTS "About" (
+    "id" TEXT NOT NULL,
+    "eyebrow" TEXT,
+    "hello" TEXT,
+    "greeting" TEXT,
+    "name" TEXT,
+    "title" TEXT,
+    "location" TEXT,
+    "phone" TEXT,
+    "phoneHref" TEXT,
+    "status" TEXT,
+    "availability" TEXT,
+    "experienceYears" TEXT,
+    "design" TEXT,
+    "resumeLabel" TEXT,
+    "resumeHref" TEXT,
+    "resumeFileName" TEXT,
+    "photoSrc" TEXT,
+    "photoAlt" TEXT,
+    "story" JSONB,
+    "socials" JSONB,
+    "interests" JSONB,
+    "education" JSONB,
+    "experience" JSONB,
+    "isPublished" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "About_pkey" PRIMARY KEY ("id")
+);

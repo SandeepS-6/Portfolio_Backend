@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as c from "../controllers/portfolioController.js";
 import * as cookieConsent from "../controllers/cookieConsentController.js";
+import * as upload from "../controllers/uploadController.js";
 import authRoutes from "./authRoutes.js";
 import { authenticate, requireAdmin } from "../middlewares/authenticate.js";
 import { optionalAuthenticate } from "../middlewares/optionalAuthenticate.js";
@@ -17,6 +18,7 @@ router.post("/cookie-consent", cookieConsent.postCookieConsent);
 
 // Public portfolio reads (visibility enforced in controllers for anonymous)
 router.get("/hero", c.getHero);
+router.get("/about", c.getAbout);
 router.get("/what-i-do", c.getWhatIDo);
 router.get("/skills-section", c.getSkillsSection);
 router.get("/skills", optionalAuthenticate, c.getSkills);
@@ -46,7 +48,9 @@ router.post("/messages", c.postMessage);
 router.post("/meeting/bookings", c.postMeetingBooking);
 
 // Protected CMS mutations + private message inbox
+router.post("/uploads", ...admin, upload.uploadMiddleware, upload.postUpload);
 router.put("/hero", ...admin, c.putHero);
+router.put("/about", ...admin, c.putAbout);
 router.put("/what-i-do", ...admin, c.putWhatIDo);
 router.put("/skills-section", ...admin, c.putSkillsSection);
 
@@ -86,6 +90,7 @@ router.patch("/messages/:id", ...admin, c.patchMessage);
 router.delete("/messages/:id", ...admin, c.deleteMessage);
 
 router.get("/meeting/bookings", ...admin, c.getMeetingBookings);
+router.get("/meeting/analytics", ...admin, c.getMeetingAnalytics);
 router.patch("/meeting/bookings/:id", ...admin, c.patchMeetingBooking);
 router.delete("/meeting/bookings/:id", ...admin, c.deleteMeetingBooking);
 

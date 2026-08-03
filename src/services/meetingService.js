@@ -1,29 +1,41 @@
 import prisma from "../config/prisma.js";
-import { sendMeetingNotification } from "../config/mailer.js";
+import {
+  meetingEmailDefaults,
+  sendMeetingNotification,
+} from "../config/mailer.js";
 import { httpError } from "../middlewares/errorHandler.js";
+import {
+  createGoogleMeetEvent,
+  resolveConfiguredMeetUrl,
+} from "../utils/googleMeet.js";
 
 const defaultSettings = {
   hostName: "Sandeep Saliganti",
   hostInitials: "SS",
+  hostImageUrl: null,
   title: "30 min meeting",
   durations: [30, 60],
   locationLabel: "Google Meet",
+  meetUrl: null,
   timezone: "Asia/Kolkata",
   workDays: [1, 2, 3, 4, 5],
-  dayStartMinutes: 1020,
-  dayEndMinutes: 1290,
+  dayStartMinutes: 540,
+  dayEndMinutes: 1200,
   slotIntervalMin: 30,
   bufferMinutes: 0,
   bookingWindowDays: 60,
   isActive: true,
+  ...meetingEmailDefaults,
 };
 
 const settingsFields = [
   "hostName",
   "hostInitials",
+  "hostImageUrl",
   "title",
   "durations",
   "locationLabel",
+  "meetUrl",
   "timezone",
   "workDays",
   "dayStartMinutes",
@@ -32,7 +44,20 @@ const settingsFields = [
   "bufferMinutes",
   "bookingWindowDays",
   "isActive",
+  "guestEmailSubject",
+  "guestEmailBody",
+  "hostEmailSubject",
+  "hostEmailBody",
 ];
+
+const templateFields = new Set([
+  "guestEmailSubject",
+  "guestEmailBody",
+  "hostEmailSubject",
+  "hostEmailBody",
+  "hostImageUrl",
+  "meetUrl",
+]);
 
 function parseIntList(value) {
   if (Array.isArray(value)) {
@@ -157,6 +182,10 @@ export async function updateMeetingSettings(body = {}) {
       data[key] = Number(body[key]);
     } else if (key === "isActive") {
       data[key] = body[key] === true || body[key] === "true";
+    } else if (templateFields.has(key)) {
+      const value = body[key];
+      data[key] =
+        value === null || value === "" ? null : String(value);
     } else {
       data[key] = body[key];
     }
@@ -238,10 +267,9 @@ export async function getAvailableSlots({ date, duration }) {
 
     if (startAt <= now) continue;
 
-    const blocked = bookings.some((booking) =>
+    const booked = bookings.some((booking) =>
       rangesOverlap(startAt, endAt, booking.startAt, booking.endAt),
     );
-    if (blocked) continue;
 
     slots.push({
       startAt: startAt.toISOString(),
@@ -249,6 +277,7 @@ export async function getAvailableSlots({ date, duration }) {
       label: formatSlotLabel(mins, true),
       label24: formatSlotLabel(mins, false),
       minutes: mins,
+      booked,
     });
   }
 
@@ -287,10 +316,32 @@ export async function createMeetingBooking(body = {}) {
     duration: durationMin,
   });
   const stillOpen = availability.slots.some(
-    (slot) => slot.startAt === startAt.toISOString(),
+    (slot) => slot.startAt === startAt.toISOString() && !slot.booked,
   );
   if (!stillOpen) {
     throw httpError(409, "That time slot is no longer available");
+  }
+
+  let meetUrl = resolveConfiguredMeetUrl(settings);
+  try {
+    const meetEvent = await createGoogleMeetEvent({
+      summary: subject || `${settings.title} with ${settings.hostName}`,
+      description: [
+        notes || "",
+        guestName ? `Guest: ${guestName}` : "",
+        guestEmail ? `Email: ${guestEmail}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      startAt,
+      endAt,
+      timeZone: settings.timezone,
+      guestEmail,
+      guestName,
+    });
+    if (meetEvent?.meetUrl) meetUrl = meetEvent.meetUrl;
+  } catch (err) {
+    console.warn("[meet] Could not create Google Meet event.", err.message);
   }
 
   const booking = await prisma.meetingBooking.create({
@@ -304,6 +355,7 @@ export async function createMeetingBooking(body = {}) {
       durationMin,
       timezone: settings.timezone,
       locationLabel: settings.locationLabel,
+      meetUrl,
       status: "confirmed",
     },
   });
@@ -316,6 +368,59 @@ export async function listMeetingBookings() {
   return prisma.meetingBooking.findMany({
     orderBy: { startAt: "desc" },
   });
+}
+
+export async function getMeetingAnalytics() {
+  const now = new Date();
+
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  const monthAgo = new Date(now);
+  monthAgo.setDate(monthAgo.getDate() - 30);
+
+  const [total, confirmed, cancelled, upcoming, past, thisWeek, thisMonth, recent] =
+    await Promise.all([
+      prisma.meetingBooking.count(),
+      prisma.meetingBooking.count({ where: { status: "confirmed" } }),
+      prisma.meetingBooking.count({ where: { status: "cancelled" } }),
+      prisma.meetingBooking.count({
+        where: { status: "confirmed", startAt: { gte: now } },
+      }),
+      prisma.meetingBooking.count({
+        where: { status: "confirmed", startAt: { lt: now } },
+      }),
+      prisma.meetingBooking.count({
+        where: { createdAt: { gte: weekAgo } },
+      }),
+      prisma.meetingBooking.count({
+        where: { createdAt: { gte: monthAgo } },
+      }),
+      prisma.meetingBooking.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          guestName: true,
+          guestEmail: true,
+          startAt: true,
+          durationMin: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+
+  return {
+    total,
+    confirmed,
+    cancelled,
+    upcoming,
+    past,
+    thisWeek,
+    thisMonth,
+    recent,
+  };
 }
 
 export async function cancelMeetingBooking(id) {

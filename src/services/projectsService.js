@@ -3,6 +3,7 @@ import { httpError } from "../middlewares/errorHandler.js";
 import {
   mapCommentToFrontend,
   mapProjectFromBody,
+  mapProjectToCard,
   mapProjectToFrontend,
 } from "../utils/mappers.js";
 
@@ -105,13 +106,44 @@ function withVisibleComments() {
   };
 }
 
+const CARD_SELECT = {
+  id: true,
+  title: true,
+  slug: true,
+  summary: true,
+  description: true,
+  coverImage: true,
+  coverAlt: true,
+  gallery: true,
+  techStack: true,
+  techDetails: true,
+  features: true,
+  category: true,
+  kinds: true,
+  role: true,
+  duration: true,
+  fromLabel: true,
+  toLabel: true,
+  progress: true,
+  sortDate: true,
+  repoUrl: true,
+  liveUrl: true,
+  caseStudyUrl: true,
+  docsUrl: true,
+  isFeatured: true,
+  projectStatus: true,
+  isVisible: true,
+  displayOrder: true,
+  relatedSlugs: true,
+};
+
 export async function getSectionPayload({ visibleOnly = true } = {}) {
   const [section, projects] = await Promise.all([
     ensureSection(),
     prisma.project.findMany({
       where: visibleOnly ? { isVisible: true } : undefined,
       orderBy: { displayOrder: "asc" },
-      include: { comments: withVisibleComments() },
+      select: CARD_SELECT,
     }),
   ]);
 
@@ -122,7 +154,7 @@ export async function getSectionPayload({ visibleOnly = true } = {}) {
     bottom: section.bottom || defaultSection.bottom,
     kinds: section.kinds || defaultSection.kinds,
     hiddenProjects: section.hiddenProjects || defaultSection.hiddenProjects,
-    projects: projects.map((row) => mapProjectToFrontend(row)),
+    projects: projects.map((row) => mapProjectToCard(row)),
   };
 }
 
@@ -188,6 +220,52 @@ async function findProjectRow(idOrSlug) {
 export async function getProject(idOrSlug, { map = true } = {}) {
   const row = await findProjectRow(idOrSlug);
   return map ? mapProjectToFrontend(row) : row;
+}
+
+/** Public detail page: full project + lean neighbors / related / switcher. */
+export async function getProjectDetailPayload(idOrSlug) {
+  const [section, cards, full] = await Promise.all([
+    ensureSection(),
+    prisma.project.findMany({
+      where: { isVisible: true },
+      orderBy: { displayOrder: "asc" },
+      select: CARD_SELECT,
+    }),
+    findProjectRow(idOrSlug),
+  ]);
+
+  if (!full.isVisible) throw httpError(404, "Project not found");
+
+  const mappedCards = cards.map((row) => mapProjectToCard(row));
+  const index = mappedCards.findIndex(
+    (card) => card.id === full.slug || card.dbId === full.id,
+  );
+  if (index < 0) throw httpError(404, "Project not found");
+
+  const project = mapProjectToFrontend(full);
+  const len = mappedCards.length;
+  const prev = mappedCards[(index - 1 + len) % len];
+  const next = mappedCards[(index + 1) % len];
+  const byId = Object.fromEntries(mappedCards.map((card) => [card.id, card]));
+  const related = (project.relatedIds || [])
+    .map((relatedId) => byId[relatedId])
+    .filter(Boolean);
+
+  return {
+    project,
+    prev,
+    next,
+    related,
+    projects: mappedCards.map((card) => ({
+      id: card.id,
+      name: card.name,
+      category: card.category,
+      image: card.image,
+    })),
+    labels: section.labels || defaultSection.labels,
+    kinds: section.kinds || defaultSection.kinds,
+    squircle: section.squircle || defaultSection.squircle,
+  };
 }
 
 export async function createProject(body) {

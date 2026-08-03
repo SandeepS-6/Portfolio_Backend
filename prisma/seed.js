@@ -143,7 +143,7 @@ async function main() {
 
   await prisma.contactInfo.create({
     data: {
-      email: "hello@example.com",
+      email: "saligantisandeepzzz6@gmail.com",
       location: "Bengaluru",
       availability: "Open to senior frontend roles",
       eyebrow: "Have a project in mind?",
@@ -183,6 +183,7 @@ async function main() {
       title: "30 min meeting",
       durations: [30, 60],
       locationLabel: "Google Meet",
+      meetUrl: process.env.GOOGLE_MEET_URL || null,
       timezone: "Asia/Kolkata",
       workDays: [1, 2, 3, 4, 5],
       dayStartMinutes: 1020,
