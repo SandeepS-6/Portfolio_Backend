@@ -1,91 +1,62 @@
-/* Seed payload aligned with frontend mockProjects shape. */
+/* Resume-aligned project seed — images left empty for CMS upload later. */
 
 const defaultTimeline = [
   {
     id: "research",
     phase: "Research",
-    detail: "Mapped user flows, constraints, and success metrics.",
+    detail: "Mapped requirements, constraints, and success metrics with stakeholders.",
   },
   {
     id: "design",
     phase: "Design",
-    detail: "Wireframes, visual system, and interaction notes.",
+    detail: "Defined layouts, flows, and interaction patterns without fixed mockups.",
   },
   {
     id: "development",
     phase: "Development",
-    detail: "Built UI, APIs, and integrations against the brief.",
+    detail: "Built UI modules, API integration, and role-aware workflows.",
   },
   {
     id: "testing",
     phase: "Testing",
-    detail: "Cross-browser checks, edge cases, and polish passes.",
+    detail: "Validated large datasets, RBAC paths, and cross-browser behavior.",
   },
   {
     id: "deployment",
     phase: "Deployment",
-    detail: "Shipped, monitored, and iterated on feedback.",
+    detail: "Shipped production builds and iterated on operator feedback.",
   },
 ];
 
-function caseStudyFor(name) {
-  return {
-    summary: `${name} was designed as a focused product story — clear hierarchy, calm density, and interactions that stay out of the way.`,
-    overview: `This case study walks through how ${name} moved from a fuzzy brief to a shippable interface.`,
-    problem:
-      "Stakeholders needed clarity without another dashboard that looked busy.",
-    research:
-      "I interviewed operators, shadowed weekly rituals, and audited competing tools for noise and empty-state quality.",
-    planning:
-      "We mapped jobs-to-be-done, defined a thin MVP, and sequenced delivery around the highest-friction workflow first.",
-    uiDesign:
-      "Typography, spacing, and one accent color carried hierarchy. Motion was reserved for orientation.",
-    development:
-      "Built in modular React pieces with mock-first services so CMS content can swap later.",
-    challenges: [
-      "Keeping dense information readable without looking like a control panel",
-      "Balancing motion polish with reduced-motion and low-end devices",
-      "Shipping a cohesive story across breakpoints",
-    ],
-    solution:
-      "A centered reading column, sticky orientation aids, and progressive disclosure.",
-    results:
-      "Teams report faster orientation on first open and cleaner handoffs in reviews.",
-    learnings: [
-      "Whitespace is a feature when density is the default risk",
-      "One strong cover image beats three decorative panels",
-      "Case-study structure helps recruiters evaluate judgment",
-    ],
-    future: [
-      "Deeper role-based views without fragmenting the story",
-      "Richer analytics once real usage data is connected",
-      "Optional dark surface for late-night ops sessions",
-    ],
-  };
-}
-
 function buildProject(base, extras = {}) {
-  const gallery = [
-    { src: base.coverImage, alt: base.coverAlt || base.title },
-    {
-      src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=900&q=70",
-      alt: `${base.title} detail view`,
-    },
-    {
-      src: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=900&q=70",
-      alt: `${base.title} workspace`,
-    },
-  ];
-  const doneCount = extras.timelineDone ?? 4;
+  const coverImage = base.coverImage || "";
+  const gallery = Array.isArray(extras.gallery)
+    ? extras.gallery
+    : coverImage
+      ? [{ src: coverImage, alt: base.coverAlt || base.title }]
+      : [];
+
+  const showcase =
+    extras.showcase ||
+    (gallery.length
+      ? {
+          desktop: gallery[0],
+          tablet: gallery[1] || gallery[0],
+          mobile: gallery[2] || gallery[0],
+        }
+      : {
+          desktop: { src: "", alt: "" },
+          tablet: { src: "", alt: "" },
+          mobile: { src: "", alt: "" },
+        });
+
+  const doneCount = extras.timelineDone ?? 5;
 
   return {
     ...base,
+    coverImage,
     gallery,
-    showcase: {
-      desktop: gallery[0],
-      tablet: gallery[1],
-      mobile: gallery[2],
-    },
+    showcase,
     timeline: defaultTimeline.map((step, index) => ({
       ...step,
       done: index < doneCount,
@@ -94,22 +65,34 @@ function buildProject(base, extras = {}) {
       name,
       category: ["UI", "Language", "Tooling", "Data", "Infra"][index % 5],
     })),
-    caseStudy: extras.caseStudy || caseStudyFor(base.title),
-    metrics: extras.metrics || [
-      { label: "Load time", value: "1.2s" },
-      { label: "Lighthouse", value: "96" },
-      { label: "Task success", value: "+34%" },
-      { label: "Support tickets", value: "−22%" },
-    ],
-    views: 1200 + (extras.viewsOffset || 0),
-    likesCount: 40 + (extras.likesOffset || 0),
-    bookmarksCount: 12 + (extras.bookmarksOffset || 0),
-    readingTime: extras.readingTime || "8 min",
-    publishedLabel: extras.published || base.fromLabel || "2025",
-    updatedLabel: extras.updated || base.toLabel || "Recently",
+    caseStudy: extras.caseStudy || {
+      summary: base.summary,
+      overview: base.description,
+      problem: "",
+      research: "",
+      planning: "",
+      uiDesign: "",
+      development: "",
+      challenges: [],
+      solution: "",
+      results: "",
+      learnings: [],
+      future: [],
+    },
+    metrics: extras.metrics || [],
+    views: 0,
+    likesCount: 0,
+    bookmarksCount: 0,
+    readingTime: extras.readingTime || "6 min",
+    publishedLabel: extras.published || base.fromLabel || "",
+    updatedLabel: extras.updated || base.toLabel || "",
     relatedSlugs: extras.relatedSlugs || [],
-    seoTitle: `${base.title} — Case study`,
+    seoTitle: extras.seoTitle || `${base.title} — Case study`,
     seoDescription: base.summary || base.description,
+    projectStatus: base.projectStatus || "Shipped",
+    platform: base.platform || "Web",
+    clientType: base.clientType || "Client",
+    isVisible: base.isVisible !== false,
   };
 }
 
@@ -179,333 +162,602 @@ export const projectsSectionSeed = {
     { id: "research", label: "Research" },
     { id: "archived", label: "Archived" },
   ],
-  hiddenProjects: [
-    {
-      id: "hidden-orbit",
-      name: "Orbit Notes",
-      description:
-        "A calm note graph for engineers — links between ideas without the wiki tax.",
-      progress: 48,
-      phase: "Development",
-      eta: "Q4 2026",
-      features: ["Graph view", "Markdown sync", "Offline draft vault"],
-      techStack: ["React", "TypeScript", "IndexedDB"],
-      image: {
-        src: "https://images.unsplash.com/photo-1618005182384-a83fe7d61c81?auto=format&fit=crop&w=800&q=70",
-        alt: "Abstract soft shapes preview",
-      },
-    },
-    {
-      id: "hidden-signal",
-      name: "Signal Desk",
-      description:
-        "A lightweight ops desk that surfaces only the alerts that actually matter.",
-      progress: 22,
-      phase: "Design",
-      eta: "Q1 2027",
-      features: ["Priority lanes", "Quiet hours", "Slack digest"],
-      techStack: ["Next.js", "Node", "Redis"],
-      image: {
-        src: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=70",
-        alt: "Soft gradient abstract preview",
-      },
-    },
-    {
-      id: "hidden-folio",
-      name: "Folio Lab",
-      description:
-        "An experiment lab for portfolio motion recipes and reusable section kits.",
-      progress: 71,
-      phase: "Testing",
-      eta: "Sep 2026",
-      features: ["Motion presets", "CMS slots", "Theme tokens"],
-      techStack: ["React", "GSAP", "CSS"],
-      image: {
-        src: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=70",
-        alt: "Paper texture abstract preview",
-      },
-    },
-  ],
+  hiddenProjects: [],
 };
 
 export const projectsSeed = [
   buildProject(
     {
-      title: "Atlas Dashboard",
-      slug: "project-atlas",
+      title: "Super Admin — Micro-Frontend & Dynamic App Generator",
+      slug: "super-admin-mfe",
       summary:
-        "A calm operations dashboard for tracking delivery health, alerts, and team focus — built for dense data without noise.",
+        "Central Super Admin that spins up and manages micro-frontend apps with a low-code generator for full frontend + backend apps.",
       description:
-        "A calm operations dashboard for tracking delivery health, alerts, and team focus — built for dense data without noise.",
-      coverImage:
-        "https://images.unsplash.com/photo-1551281044-8b89c0d1e0b3?auto=format&fit=crop&w=1100&q=72",
-      coverAlt: "Dashboard UI on a laptop screen",
-      techStack: ["React", "TypeScript", "Vite", "Tailwind", "Recharts"],
-      features: [
-        "Live status boards with quiet empty states",
-        "Keyboard-first filters and saved views",
-        "Role-aware navigation for ops leads",
+        "Engineered a micro-frontend ecosystem with Vite Module Federation so teams can create and control multiple sub-applications from one Super Admin. Includes a low-code/no-code generator, JSON-driven layouts, and shared updates that propagate across generated apps.",
+      coverImage: "",
+      coverAlt: "Super Admin micro-frontend platform",
+      techStack: [
+        "React",
+        "Vite",
+        "Module Federation",
+        "JavaScript",
+        "Node.js",
+        "REST APIs",
       ],
-      category: "Frontend",
+      features: [
+        "Vite Module Federation for dynamic sub-apps",
+        "Low-code / no-code full-app generator",
+        "Central start/stop and shared update control",
+        "JSON-driven layout engine + component registry",
+        "Three-layer AdminPages / AdminFrontend / AdminBackend architecture",
+        "Backend-driven header, sidebar, and navigation",
+      ],
+      category: "Full Stack",
       kinds: ["featured", "production"],
-      role: "Frontend Engineer",
-      duration: "3 months",
-      fromLabel: "Aug 2025",
-      toLabel: "Nov 2025",
+      role: "Full Stack Developer",
+      duration: "Client project",
+      fromLabel: "2025",
+      toLabel: "2026",
       progress: null,
-      sortDate: "2025-11-12",
-      repoUrl: "https://github.com/",
-      liveUrl: "https://example.com",
-      caseStudyUrl: "#",
+      sortDate: "2026-06-01",
+      liveUrl: "",
+      repoUrl: "",
+      caseStudyUrl: "",
+      docsUrl: "",
       isFeatured: true,
       displayOrder: 1,
-      projectStatus: "Shipped",
-      platform: "Web",
-      clientType: "Personal",
     },
     {
-      viewsOffset: 840,
-      likesOffset: 88,
-      bookmarksOffset: 34,
-      readingTime: "6 min",
-      published: "12 Nov 2025",
-      updated: "04 Jan 2026",
-      relatedSlugs: ["project-pulse", "project-harbor", "project-northstar"],
+      readingTime: "8 min",
+      published: "2025",
+      updated: "2026",
+      relatedSlugs: ["bestinfra-website", "inventory-management", "gmr-airport-billing"],
       timelineDone: 5,
+      metrics: [
+        { label: "Architecture", value: "3 layers" },
+        { label: "Federation", value: "Runtime remotes" },
+        { label: "UI model", value: "JSON-driven" },
+        { label: "Sharing", value: "Cross-app" },
+      ],
+      caseStudy: {
+        summary:
+          "A Super Admin hub that generates and governs micro-frontend applications without hand-building each one.",
+        overview:
+          "Built a centralized platform where operators configure forms to generate full applications (frontend + backend), then manage those apps as federated remotes.",
+        problem:
+          "Teams needed many related apps with shared UI and updates, without forking codebases or redeploying everything by hand.",
+        research:
+          "Worked with backend teams on schema-driven generation and API contracts that the admin forms could drive.",
+        planning:
+          "Split the system into AdminPages, AdminFrontend, and AdminBackend so generation, shell UI, and APIs stayed modular.",
+        uiDesign:
+          "Layouts, headers, and sidebars are fully backend-configured so navigation stays consistent across generated apps.",
+        development:
+          "Module Federation with shared dependencies, runtime remote loading, and environment-agnostic configs. A component registry feeds the JSON layout engine.",
+        challenges: [
+          "Keeping federated remotes stable across environments",
+          "Propagating Super Admin updates to every generated app",
+          "Schema-driven generation that still feels usable for non-developers",
+        ],
+        solution:
+          "Central Super Admin for global control (start/stop, shared updates) plus a low-code generator and JSON layout engine for extensibility.",
+        results:
+          "Operators can create and manage multiple sub-applications from one place, with cross-app component sharing.",
+        learnings: [
+          "Shared dependency graphs matter as much as remote URLs",
+          "Backend-driven nav reduces drift between generated shells",
+          "A registry + JSON layout scales better than one-off pages",
+        ],
+        future: [
+          "Richer form builders for generation",
+          "Stronger observability per remote app",
+          "Deeper environment presets for clients",
+        ],
+      },
     },
   ),
   buildProject(
     {
-      title: "Northstar Portfolio",
-      slug: "project-northstar",
+      title: "Sammakka Sarakka Jathara — MDMS",
+      slug: "ssj-mdms",
       summary:
-        "A motion-led personal site with scroll storytelling, CMS-ready sections, and a booking flow that stays out of the way.",
+        "Web MDMS for smart meter monitoring during a large public event — HES integration, maps, RBAC, and ops modules.",
       description:
-        "A motion-led personal site with scroll storytelling, CMS-ready sections, and a booking flow that stays out of the way.",
-      coverImage:
-        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1100&q=72",
-      coverAlt: "Laptop showing a clean analytics layout",
-      techStack: ["React", "GSAP", "Node", "Express", "MongoDB"],
-      features: [
-        "Scroll-scrubbed section reveals",
-        "Mock-first content services for CMS swap",
-        "Meeting scheduler with timezone clarity",
+        "Developed a meter data management system for the Sammakka Sarakka Jathara event. Integrated with Kimbal HES for real-time and interval data, Google Maps for meter locations, and modules for dashboard hierarchy, consumers, ticketing, MIS, load survey, assets, and roles.",
+      coverImage: "",
+      coverAlt: "MDMS dashboard for smart meter monitoring",
+      techStack: [
+        "React",
+        "JavaScript",
+        "REST APIs",
+        "Google Maps",
+        "Node.js",
       ],
-      category: "Full Stack",
+      features: [
+        "Real-time and interval HES data integration",
+        "Queue-based interval meter processing",
+        "Google Maps markers for meter locations",
+        "Multi-level hierarchy dashboard",
+        "Ticketing, MIS reports, and load survey",
+        "Role-based access control (RBAC)",
+      ],
+      category: "Frontend",
       kinds: ["featured", "production"],
-      role: "Full-stack Frontend",
-      duration: "Ongoing",
-      fromLabel: "Jan 2026",
-      toLabel: "Present",
-      progress: 65,
-      sortDate: "2026-06-01",
-      repoUrl: "https://github.com/",
-      liveUrl: "https://example.com",
+      role: "Frontend Developer",
+      duration: "Event / client project",
+      fromLabel: "2025",
+      toLabel: "2025",
+      progress: null,
+      sortDate: "2025-11-01",
+      liveUrl: "",
+      repoUrl: "",
       isFeatured: true,
       displayOrder: 2,
     },
     {
-      viewsOffset: 620,
-      likesOffset: 71,
-      bookmarksOffset: 28,
-      readingTime: "5 min",
-      published: "18 Jan 2026",
-      updated: "21 Jul 2026",
-      relatedSlugs: ["project-atlas", "project-canvas", "project-pulse"],
-      timelineDone: 3,
+      readingTime: "7 min",
+      published: "2025",
+      updated: "2025",
+      relatedSlugs: ["gmr-airport-billing", "dtr-warangal", "singareni-billing"],
+      timelineDone: 5,
+      metrics: [
+        { label: "Data source", value: "Kimbal HES" },
+        { label: "Maps", value: "Google Maps" },
+        { label: "Access", value: "RBAC" },
+        { label: "Reports", value: "MIS + tabs" },
+      ],
+      caseStudy: {
+        summary:
+          "Event-scale smart meter monitoring with HES feeds, maps, and operator workflows.",
+        overview:
+          "Built the web UI to monitor and manage meter data during a large public event, collaborating with Kimbal HES and backend teams.",
+        problem:
+          "Organizers needed reliable visibility into meter health and consumer operations under heavy, time-sensitive load.",
+        research:
+          "Aligned on real-time vs interval payloads and how queue processing should surface in the UI.",
+        planning:
+          "Scoped modules around dashboard hierarchy, consumers, tickets, MIS, load survey, assets, and user roles.",
+        uiDesign:
+          "Responsive layouts that stay usable with large meter datasets; selected reports open in new tabs.",
+        development:
+          "Integrated HES data paths, Google Maps markers, and RBAC so permissions match data visibility.",
+        challenges: [
+          "Large meter lists without freezing the UI",
+          "Keeping interval queues understandable for operators",
+          "Accurate real-time display across hierarchy levels",
+        ],
+        solution:
+          "Modular React screens with map visualization, role-aware views, and efficient report handling.",
+        results:
+          "Operators could monitor meters, raise tickets, and pull MIS views during the event.",
+        learnings: [
+          "Queue status belongs next to the data it affects",
+          "Map markers need clear hierarchy context",
+          "RBAC early prevents late permission rewrites",
+        ],
+        future: [
+          "Richer alerting on meter anomalies",
+          "Faster map clustering for denser deployments",
+        ],
+      },
     },
   ),
   buildProject(
     {
-      title: "Harbor Docs",
-      slug: "project-harbor",
+      title: "BestInfra Corporate Website — CMS-Driven Platform",
+      slug: "bestinfra-website",
       summary:
-        "Documentation experience for a design system — fast search, clear hierarchy, and examples that feel like the real product.",
+        "Sole frontend for a CMS-driven corporate site — case studies, blogs, projects, and products rendered from APIs.",
       description:
-        "Documentation experience for a design system — fast search, clear hierarchy, and examples that feel like the real product.",
-      coverImage:
-        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1100&q=72",
-      coverAlt: "Developer workspace with code on screen",
-      techStack: ["Next.js", "MDX", "CSS Modules", "Algolia"],
+        "Built the complete BestInfra frontend from scratch with stakeholders (no fixed designs). All content is API-driven: reusable layouts, header/footer, and dynamic pages for case studies, blogs, projects, and products, with GSAP motion for polish.",
+      coverImage: "",
+      coverAlt: "BestInfra CMS-driven corporate website",
+      techStack: ["React", "GSAP", "CSS", "REST APIs", "JavaScript"],
       features: [
-        "Component playgrounds beside docs",
-        "Token tables synced from source",
-        "Light/dark preview without theme thrash",
+        "Fully CMS / API-driven content",
+        "Reusable layout, header, and footer system",
+        "Dynamic pages for case studies, blogs, projects, products",
+        "GSAP-based motion and responsive UI",
+        "Scalable structure for ongoing content updates",
       ],
       category: "Frontend",
-      kinds: ["production", "opensource"],
-      role: "UI Engineer",
-      duration: "2 months",
-      fromLabel: "Jun 2025",
-      toLabel: "Aug 2025",
+      kinds: ["featured", "production"],
+      role: "Frontend Developer (sole)",
+      duration: "Client project",
+      fromLabel: "2025",
+      toLabel: "2025",
       progress: null,
-      sortDate: "2025-08-20",
-      repoUrl: "https://github.com/",
-      liveUrl: "https://example.com",
-      caseStudyUrl: "#",
-      docsUrl: "https://example.com/docs",
-      isFeatured: false,
+      sortDate: "2025-09-01",
+      liveUrl: "",
+      repoUrl: "",
+      isFeatured: true,
       displayOrder: 3,
     },
     {
-      viewsOffset: 410,
-      likesOffset: 52,
-      bookmarksOffset: 19,
-      readingTime: "4 min",
-      published: "20 Aug 2025",
-      updated: "02 Mar 2026",
-      relatedSlugs: ["project-canvas", "project-atlas", "project-ledger"],
+      readingTime: "5 min",
+      published: "2025",
+      updated: "2025",
+      relatedSlugs: ["super-admin-mfe", "inventory-management", "gmr-airport-billing"],
       timelineDone: 5,
+      metrics: [
+        { label: "Content", value: "CMS APIs" },
+        { label: "Motion", value: "GSAP" },
+        { label: "Ownership", value: "Sole FE" },
+        { label: "Pages", value: "Multi-type" },
+      ],
+      caseStudy: {
+        summary:
+          "A corporate marketing site where every page type is fed by CMS APIs.",
+        overview:
+          "Owned the full frontend build with stakeholders defining structure and UX without predefined mockups.",
+        problem:
+          "Marketing needed frequent content updates without redeploying hard-coded pages.",
+        research:
+          "Mapped content types (case studies, blogs, projects, products) to reusable page shells.",
+        planning:
+          "Laid out a scalable layout system so new CMS entries render through the same components.",
+        uiDesign:
+          "Clear hierarchy, responsive breakpoints, and restrained GSAP motion for section presence.",
+        development:
+          "Integrated CMS APIs end-to-end; modular components keep content swaps maintainable.",
+        challenges: [
+          "Designing without a fixed design system",
+          "Keeping many content types consistent",
+          "Motion that helps hierarchy without noise",
+        ],
+        solution:
+          "API-first React architecture with shared chrome and content-type-specific templates.",
+        results:
+          "Stakeholders can update site content through the CMS while the frontend stays stable.",
+        learnings: [
+          "Agree content shapes early with the CMS team",
+          "Reusable layouts beat one-off marketing pages",
+          "GSAP works best when tied to section purpose",
+        ],
+        future: [
+          "Richer preview modes for editors",
+          "More shared motion presets across templates",
+        ],
+      },
     },
   ),
   buildProject(
     {
-      title: "Ledger API",
-      slug: "project-ledger",
+      title: "GMR Hyderabad Airport — Prepaid Billing",
+      slug: "gmr-airport-billing",
       summary:
-        "A tidy billing API with clear error shapes, webhook retries, and dashboards ops can trust under load.",
+        "Prepaid electricity billing web app for GMR Hyderabad Airport shops — meters, payments, RBAC, and dark/light UI.",
       description:
-        "A tidy billing API with clear error shapes, webhook retries, and dashboards ops can trust under load.",
-      coverImage:
-        "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=1100&q=72",
-      coverAlt: "Server room with soft lighting",
-      techStack: ["Node", "Express", "PostgreSQL", "Redis"],
+        "Sole frontend for a prepaid billing application managing electricity usage and payments across multiple shop meters. Delivered 6+ modules (dashboard, consumers, billing, assets, users, ticketing) with REST integration, RBAC, and dark/light mode — built from scratch without design references.",
+      coverImage: "",
+      coverAlt: "GMR airport prepaid billing application",
+      techStack: ["React", "JavaScript", "REST APIs", "CSS", "RBAC"],
       features: [
-        "Idempotent payment intents",
-        "Retry-safe webhook delivery",
-        "Ops-friendly structured logs",
+        "Dashboard for multi-meter prepaid usage",
+        "Consumer, billing, and asset management",
+        "Centralized ticketing system",
+        "Role-based page and data access",
+        "Dark / light mode",
+        "REST integration for live meter profiles",
       ],
-      category: "Backend",
-      kinds: ["production", "research"],
-      role: "Backend Engineer",
-      duration: "4 months",
-      fromLabel: "Jan 2025",
-      toLabel: "May 2025",
+      category: "Frontend",
+      kinds: ["featured", "production"],
+      role: "Frontend Developer (sole)",
+      duration: "Client project",
+      fromLabel: "2025",
+      toLabel: "2025",
       progress: null,
-      sortDate: "2025-05-02",
-      repoUrl: "https://github.com/",
-      liveUrl: "https://example.com",
-      caseStudyUrl: "#",
-      isFeatured: false,
+      sortDate: "2025-08-01",
+      liveUrl: "",
+      repoUrl: "",
+      isFeatured: true,
       displayOrder: 4,
     },
     {
-      viewsOffset: 290,
-      likesOffset: 33,
-      bookmarksOffset: 11,
       readingTime: "7 min",
-      published: "02 May 2025",
-      updated: "14 Sep 2025",
-      relatedSlugs: ["project-atlas", "project-pulse", "project-harbor"],
+      published: "2025",
+      updated: "2025",
+      relatedSlugs: ["ssj-mdms", "singareni-billing", "dtr-warangal"],
       timelineDone: 5,
+      metrics: [
+        { label: "Modules", value: "6+" },
+        { label: "Access", value: "RBAC" },
+        { label: "Theme", value: "Dark / light" },
+        { label: "Domain", value: "Prepaid billing" },
+      ],
+      caseStudy: {
+        summary:
+          "Airport prepaid billing UI for shop meters, payments, and operations.",
+        overview:
+          "Designed and built every page and flow in React with the backend team defining data contracts for live meter profiles.",
+        problem:
+          "Airport retail needed a clear way to track prepaid electricity usage and payments across many shop meters.",
+        research:
+          "Walked through operator workflows for billing, tickets, and asset ownership.",
+        planning:
+          "Architected modules around dashboard, consumers, billing, assets, users, and ticketing.",
+        uiDesign:
+          "Built without mockups — focused on readable tables, clear payment states, and theme support.",
+        development:
+          "REST-driven screens with RBAC for page-level access and data visibility.",
+        challenges: [
+          "No design references for a dense billing product",
+          "Multiple meter profiles on one consumer",
+          "Keeping RBAC aligned with backend roles",
+        ],
+        solution:
+          "A modular React app with shared patterns across billing and ops screens, plus dark/light themes.",
+        results:
+          "Operators can manage prepaid usage, payments, tickets, and assets in one frontend.",
+        learnings: [
+          "Agree API shapes before deep UI polish",
+          "Theme tokens early save dual-mode rework",
+          "Ticketing belongs next to the records it references",
+        ],
+        future: [
+          "Richer payment history filters",
+          "Faster multi-meter comparison views",
+        ],
+      },
     },
   ),
   buildProject(
     {
-      title: "Pulse Board",
-      slug: "project-pulse",
+      title: "DTR Monitoring — Warangal (TGNPDCL)",
+      slug: "dtr-warangal",
       summary:
-        "Realtime collaboration board for product squads — presence, comments, and a timeline that stays readable.",
+        "Distribution transformer monitoring for Warangal — maps, multi-profile dashboards, and Konva power visualizations.",
       description:
-        "Realtime collaboration board for product squads — presence, comments, and a timeline that stays readable.",
-      coverImage:
-        "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1100&q=72",
-      coverAlt: "Team collaborating around a laptop",
-      techStack: ["React", "Socket.io", "Node", "MongoDB"],
-      features: [
-        "Presence without noisy cursors",
-        "Threaded comments on cards",
-        "Offline-tolerant draft sync",
+        "Web system to monitor and visualize DTR data across the Warangal region. Interactive React dashboard with Google Maps geolocation, react-konva visuals, and a power triangle for active (kWh) vs reactive (kVArh) energy to clarify power factor.",
+      coverImage: "",
+      coverAlt: "DTR monitoring dashboard with map and power visuals",
+      techStack: [
+        "React",
+        "react-konva",
+        "Google Maps",
+        "JavaScript",
+        "REST APIs",
       ],
-      category: "Full Stack",
-      kinds: ["featured", "experiments"],
-      role: "Full-stack Engineer",
-      duration: "Ongoing",
-      fromLabel: "Feb 2026",
-      toLabel: "Present",
-      progress: 40,
-      sortDate: "2026-04-18",
-      repoUrl: "https://github.com/",
+      features: [
+        "Multi-profile transformer dashboard",
+        "Google Maps geolocation for DTRs",
+        "react-konva performance visuals",
+        "Power triangle (kWh / kVArh)",
+        "Feeder-level and meter-linked views",
+      ],
+      category: "Frontend",
+      kinds: ["production", "research"],
+      role: "Frontend Developer",
+      duration: "Client project",
+      fromLabel: "2025",
+      toLabel: "2025",
+      progress: null,
+      sortDate: "2025-07-01",
       liveUrl: "",
-      isFeatured: true,
+      repoUrl: "",
+      isFeatured: false,
       displayOrder: 5,
     },
     {
-      viewsOffset: 510,
-      likesOffset: 64,
-      bookmarksOffset: 22,
-      readingTime: "5 min",
-      published: "18 Apr 2026",
-      updated: "12 Jul 2026",
-      relatedSlugs: ["project-northstar", "project-atlas", "project-ledger"],
-      timelineDone: 2,
+      readingTime: "6 min",
+      published: "2025",
+      updated: "2025",
+      relatedSlugs: ["ssj-mdms", "singareni-billing", "gmr-airport-billing"],
+      timelineDone: 5,
+      metrics: [
+        { label: "Region", value: "Warangal" },
+        { label: "Maps", value: "Google Maps" },
+        { label: "Canvas", value: "react-konva" },
+        { label: "Focus", value: "Power factor" },
+      ],
+      caseStudy: {
+        summary:
+          "Spatial + visual monitoring for distribution transformers in Warangal.",
+        overview:
+          "Built dashboards that combine feeder/meter data with map locations and canvas-based energy visuals.",
+        problem:
+          "Operators needed clearer spatial and power-factor insight than raw meter tables alone.",
+        research:
+          "Reviewed how active vs reactive energy should be shown for day-to-day decisions.",
+        planning:
+          "Prioritized map placement, multi-profile metrics, and a dedicated power triangle view.",
+        uiDesign:
+          "Clean, intuitive screens so field and office users can scan status quickly.",
+        development:
+          "React dashboard + Google Maps + react-konva for load and performance representation.",
+        challenges: [
+          "Making power-factor concepts readable",
+          "Linking feeder hierarchy to meters on the map",
+          "Keeping canvas visuals performant",
+        ],
+        solution:
+          "Combined map monitoring with Konva visuals and structured feeder/meter panels.",
+        results:
+          "Improved interpretation of transformer performance and load distribution.",
+        learnings: [
+          "Visual metaphors beat raw kVArh columns",
+          "Map + table pairing reduces context switching",
+        ],
+        future: [
+          "Historical trend overlays on the triangle",
+          "Alert badges tied to map markers",
+        ],
+      },
     },
   ),
   buildProject(
     {
-      title: "Canvas Kit",
-      slug: "project-canvas",
+      title: "Singareni Billing — Asset Visualization (NodeChart)",
+      slug: "singareni-billing",
       summary:
-        "A planned component kit for marketing pages — expressive type, restrained motion, and CMS-friendly slots.",
+        "Asset management for a postpaid billing system — custom node–edge engine rendering 20,000+ meters with WebGL.",
       description:
-        "A planned component kit for marketing pages — expressive type, restrained motion, and CMS-friendly slots.",
-      coverImage:
-        "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1100&q=72",
-      coverAlt: "Design tools on a desk",
-      techStack: ["React", "CSS", "Storybook"],
+        "Built the Asset Management module and NodeChart V1 visualization for hierarchical location–meter relationships. Multi-renderer stack (WebGL, SVG, Canvas, HTML) with viewport culling, Map-based lookups, batched draw calls, and progressive expand/collapse for large trees.",
+      coverImage: "",
+      coverAlt: "NodeChart hierarchy visualization for meter assets",
+      techStack: [
+        "React",
+        "WebGL",
+        "Canvas",
+        "SVG",
+        "JavaScript",
+      ],
       features: [
-        "Token-first primitives",
-        "Motion presets that stay calm",
-        "Slot-based CMS blocks",
+        "Custom node–edge hierarchy engine (NodeChart V1)",
+        "20,000+ meter rendering pipeline",
+        "Multi-renderer: WebGL / SVG / Canvas / HTML",
+        "Viewport culling for off-screen nodes",
+        "Map-based node lookup + optimized edges",
+        "Progressive expand / collapse disclosure",
       ],
       category: "Frontend",
-      kinds: ["concepts", "archived"],
-      role: "Frontend Engineer",
-      duration: "Queued",
-      fromLabel: "Q3 2026",
-      toLabel: "TBD",
-      progress: 15,
-      sortDate: "2026-07-01",
-      repoUrl: "https://github.com/",
+      kinds: ["featured", "production", "research"],
+      role: "Frontend Developer",
+      duration: "Client project",
+      fromLabel: "2025",
+      toLabel: "2026",
+      progress: null,
+      sortDate: "2026-01-15",
       liveUrl: "",
-      isFeatured: false,
+      repoUrl: "",
+      isFeatured: true,
       displayOrder: 6,
     },
     {
-      viewsOffset: 120,
-      likesOffset: 18,
-      bookmarksOffset: 7,
-      readingTime: "3 min",
-      published: "01 Jul 2026",
-      updated: "21 Jul 2026",
-      relatedSlugs: ["project-harbor", "project-northstar", "project-atlas"],
-      timelineDone: 1,
+      readingTime: "9 min",
+      published: "2025",
+      updated: "2026",
+      relatedSlugs: ["dtr-warangal", "gmr-airport-billing", "ssj-mdms"],
+      timelineDone: 5,
+      metrics: [
+        { label: "Meters", value: "20,000+" },
+        { label: "Engine", value: "NodeChart V1" },
+        { label: "Render", value: "WebGL+" },
+        { label: "Cull", value: "Viewport" },
+      ],
+      caseStudy: {
+        summary:
+          "High-performance asset graph for postpaid meter infrastructure at Singareni scale.",
+        overview:
+          "Owned the visualization layer that lets operators explore hierarchical location and meter relationships without freezing the browser.",
+        problem:
+          "Standard DOM charts could not handle tens of thousands of meters interactively.",
+        research:
+          "Compared SVG, Canvas, and WebGL trade-offs for nodes, edges, and labels.",
+        planning:
+          "Designed a multi-renderer architecture so each layer does what it is good at.",
+        uiDesign:
+          "Progressive disclosure keeps the tree usable — expand only what you need.",
+        development:
+          "Viewport culling, Map lookups, rAF loops, batched WebGL draws, and React render discipline (memo / batched state).",
+        challenges: [
+          "Edge resolution cost at scale",
+          "Avoiding redundant React re-renders",
+          "Keeping interaction smooth while zooming and expanding",
+        ],
+        solution:
+          "NodeChart V1 with multi-renderer pipeline and aggressive culling / lookup optimizations.",
+        results:
+          "Operators can explore large meter hierarchies with acceptable frame rates.",
+        learnings: [
+          "Cull before you draw",
+          "Lookup maps beat nested array scans",
+          "Batch draw calls; minimize state churn",
+        ],
+        future: [
+          "Deeper search-to-node camera focus",
+          "Export snapshots of selected subgraphs",
+        ],
+      },
+    },
+  ),
+  buildProject(
+    {
+      title: "Inventory Management — Stock & Warehouse",
+      slug: "inventory-management",
+      summary:
+        "Full inventory system for stock, warehouses, and analytics — JWT/RBAC, WebSockets, and dark/light design tokens.",
+      description:
+        "Led frontend for a full-scale inventory platform: vendor orders, warehouse intake with serial tracking, client allocation, and multi-warehouse visibility. JWT auth, RBAC, WebSocket notifications, stock comparison dashboards, and a reusable CSS-variable theme system.",
+      coverImage: "",
+      coverAlt: "Inventory management stock and warehouse dashboard",
+      techStack: [
+        "React",
+        "JavaScript",
+        "WebSockets",
+        "JWT",
+        "CSS",
+        "REST APIs",
+      ],
+      features: [
+        "JWT auth + role-based access",
+        "Vendor orders and warehouse intake (serials)",
+        "Client allocation workflows",
+        "Multi-warehouse stock visibility",
+        "WebSocket live notifications",
+        "Dark / light design system via CSS variables",
+      ],
+      category: "Full Stack",
+      kinds: ["production"],
+      role: "Frontend Lead",
+      duration: "Client project",
+      fromLabel: "2025",
+      toLabel: "2026",
+      progress: null,
+      sortDate: "2026-03-01",
+      liveUrl: "",
+      repoUrl: "",
+      isFeatured: false,
+      displayOrder: 7,
+    },
+    {
+      readingTime: "7 min",
+      published: "2025",
+      updated: "2026",
+      relatedSlugs: ["super-admin-mfe", "bestinfra-website", "gmr-airport-billing"],
+      timelineDone: 5,
+      metrics: [
+        { label: "Auth", value: "JWT + RBAC" },
+        { label: "Realtime", value: "WebSockets" },
+        { label: "Scope", value: "Multi-warehouse" },
+        { label: "Theme", value: "CSS variables" },
+      ],
+      caseStudy: {
+        summary:
+          "Stock and warehouse operations UI with live updates and secure multi-user flows.",
+        overview:
+          "Led React architecture, API integration, and realtime features for inventory tracking and analytics.",
+        problem:
+          "Distributed warehouses needed shared visibility into orders, serials, and client allocation.",
+        research:
+          "Mapped vendor → intake → allocation paths and who needs which notifications.",
+        planning:
+          "Modular screens for orders, intake, allocation, and comparison dashboards.",
+        uiDesign:
+          "Reusable design system with CSS variables for dark and light themes.",
+        development:
+          "JWT/RBAC for secure workflows; WebSockets for live order and stock movement alerts.",
+        challenges: [
+          "Serial tracking without clumsy forms",
+          "Keeping multi-warehouse stock comparable",
+          "Realtime updates without noisy UI thrash",
+        ],
+        solution:
+          "Role-aware React modules, WebSocket notifications, and tokenized theming.",
+        results:
+          "Teams can track stock movement and allocations with live feedback across warehouses.",
+        learnings: [
+          "Serial UX is a product problem, not only a field",
+          "Theme tokens pay off once dual mode is required",
+          "RBAC should mirror warehouse ownership",
+        ],
+        future: [
+          "Deeper analytics on stock aging",
+          "Richer notification preferences per role",
+        ],
+      },
     },
   ),
 ];
 
-export const projectCommentsSeed = {
-  "project-atlas": [
-    {
-      name: "Aisha Rahman",
-      avatar: "AR",
-      body: "The hierarchy is excellent — I could understand the product story in under a minute.",
-      likes: 12,
-      replies: [
-        {
-          name: "Sandeep",
-          avatar: "SK",
-          body: "Appreciate that — readability was the north star.",
-          likes: 4,
-        },
-      ],
-    },
-    {
-      name: "Marcus Chen",
-      avatar: "MC",
-      body: "Love the TOC + sticky info pattern. Feels like a real case study, not a gallery.",
-      likes: 8,
-      replies: [],
-    },
-  ],
-};
+export const projectCommentsSeed = {};

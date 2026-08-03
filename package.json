@@ -12,6 +12,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js",
+    "seed:projects": "node scripts/seed-projects.js",
     "google:calendar-token": "node scripts/get-google-calendar-token.js"
   },
   "prisma": {
